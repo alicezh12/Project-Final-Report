@@ -1,0 +1,41 @@
+#my proposal plots, idk if it'll be useful
+
+
+players_data <- "https://drive.google.com/uc?export=download&id=1Mw9vW0hjTJwRWx0bDXiSpYsO3gKogaPz"
+sessions_data <- "https://drive.google.com/uc?export=download&id=14O91N5OlVkvdGxXNJUj5jIsV5RexhzbB"
+
+download.file(players_data, "players.csv")
+download.file(sessions_data, "sessions.csv")
+
+players <- read_csv("players.csv")
+sessions <- read_csv("sessions.csv")
+
+players_tidy <- players |>
+select(- individualId, - organizationName)
+
+sessions_tidy <- sessions |>
+separate(start_time, c("start_date", "start_time"), sep = " ") |>
+separate(end_time, c("end_date", "end_time"), sep = " ")
+
+demographics_playtime_plot <- players_tidy |>
+ggplot(aes(x=age, y=played_hours, colour = gender)) +
+scale_x_log10() +
+scale_y_log10() +
+labs(x= "Player Age",
+     y="Total Playtime (Hours)",
+     colour = "Player Gender",
+    title="Player Age and Gender vs. Total Playtime") +
+geom_point()
+demographics_playtime_plot
+
+experience_level_avgs <- players_tidy |> 
+group_by(experience) |>
+summarize(avg_total_playtime = mean(played_hours))
+
+experience_playtime_plot <- experience_level_avgs |>
+ggplot(aes(x=experience, y=avg_total_playtime)) +
+labs(x= "Player Experience",
+     y="Average Playtime (Hours)",
+    title="Experience and Playtime") +
+geom_bar(stat = "identity", position = "dodge")
+experience_playtime_plot
